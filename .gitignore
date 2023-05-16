@@ -2,7 +2,7 @@ node_modules/
 public/js
 public/css
 
-/target
+/out
 /checkouts
 /src/gen
 

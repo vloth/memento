@@ -3,17 +3,14 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "js:watch": "shadow-cljs watch app",
-    "js:release": "shadow-cljs release app",
-    "watch": "run-p -l *:watch",
-    "release": "run-s *:release"
+    "start": "shadow-cljs watch app tests",
+    "release": "shadow-cljs release app",
+    "test": "shadow-cljs compile node-tests"
   },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-refresh": "^0.13.0",
-    "react-router-dom": "^6.9.0",
-    "use-sync-external-store": "1.2.0"
+    "react-refresh": "^0.13.0"
   },
   "devDependencies": {
     "shadow-cljs": "^2.22.2"
