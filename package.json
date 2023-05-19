@@ -1,18 +1,29 @@
- {
+{
   "name": "memento",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "shadow-cljs watch app tests",
-    "release": "shadow-cljs release app",
-    "test": "shadow-cljs compile node-tests"
+    "start": "concurrently -c bgBlue.bold,bgBlueBright.bold npm:watch:js-*",
+    "test": "shadow-cljs compile node-tests && node out/node-tests.js",
+    "watch:js-cljs": "shadow-cljs watch app tests",
+    "watch:js-bundle": "webpack --entry ./out/libs.mjs --output-path public/js/libs --mode development --watch",
+    "watch:test": "shadow-cljs watch node-tests --config-merge \"{:autorun true}\""
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.6.1",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@testing-library/react": "^14.0.0",
+    "concurrently": "^8.0.1",
+    "framer-motion": "^10.12.12",
+    "global-jsdom": "9.0.1",
+    "jsdom": "22.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-refresh": "^0.13.0"
-  },
-  "devDependencies": {
-    "shadow-cljs": "^2.22.2"
+    "react-refresh": "^0.13.0",
+    "shadow-cljs": "^2.22.2",
+    "webpack": "^5.83.1",
+    "webpack-bundle-analyzer": "^4.8.0",
+    "webpack-cli": "^5.1.1"
   }
 }

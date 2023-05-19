@@ -1,11 +1,20 @@
 (ns main.app-test
-  (:require [clojure.test :refer [testing deftest is]]))
+  (:require ["@testing-library/react" :as tlr]
+            [clojure.test :refer [deftest is use-fixtures]]
+            [helix.core :refer [$]]
+            [main.component :as c]))
 
+(defn testing-container []
+  (as-> (js/document.createElement "div") div
+    (js/document.body.appendChild div)))
 
-(deftest a-test
-  (is (= 1 1)))
+(defn setup-root [f]
+  (f)
+  (tlr/cleanup))
 
-(testing "dummy tests"
-  (deftest dummy-test
-    (is (= {:value 1}
-           {:value 1}))))
+(use-fixtures :each setup-root)
+
+(deftest a-component-test
+  (let [container (tlr/render ($ c/app) #js {:container (testing-container)})
+        btn       (.getByRole container "button")]
+      (is (= "OK" (.-textContent btn)))))

@@ -1,12 +1,15 @@
 {:source-paths ["src" "tests"]
  :dependencies [[lilactown/helix "0.1.9"]]
  :builds {:app {:target           :browser
+                :compiler-options {:install-deps true}
                 :devtools         {:http-port 5000
                                    :http-root "public"
                                    :preloads [dev.refresh]
                                    :reload-strategy :full}
                 :modules          {:main {:init-fn main.app/init}}
-                :compiler-options {:install-deps true}}
+                :js-options       {:js-provider :external
+                                   :external-index "out/libs.mjs"
+                                   :external-index-format :esm}}
  
           :tests {:target    :browser-test
                   :test-dir  "out/tests"
@@ -15,6 +18,5 @@
                               :http-root "out/tests"}}
           
           :node-tests {:target    :node-test
-                       :autorun   true
-                       :output-to "out/node-tests.js"
-                       :ns-regexp "-test$"}}}
+                       :main      node/main
+                       :output-to "out/node-tests.js"}}}
