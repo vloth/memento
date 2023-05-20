@@ -7,9 +7,12 @@
     "test": "shadow-cljs compile node-tests && node out/node-tests.js",
     "watch:js-cljs": "shadow-cljs watch app tests",
     "watch:js-bundle": "webpack --entry ./out/libs.mjs --output-path public/js/libs --mode development --watch",
-    "watch:test": "shadow-cljs watch node-tests --config-merge \"{:autorun true}\""
+    "watch:test": "shadow-cljs watch node-tests --config-merge \"{:autorun true}\"",
+    "release:js-cljs": "shadow-cljs release app",
+    "release:js-bundle": "webpack --entry ./out/libs.mjs --output-path public/js/libs --mode production"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.0.19",
     "@chakra-ui/react": "^2.6.1",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",

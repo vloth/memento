@@ -1,14 +1,16 @@
 (ns main.app
   (:require ["react-dom/client" :as rdom]
-            [helix.core :refer [$]]
-            [main.component :as c]))
+            [main.components.layout :as components.layout]
+            [helix.core :refer [$]]))
 
 (defonce root
-  (rdom/createRoot 
-    (js/document.getElementById "app")))
+  (rdom/createRoot
+   (js/document.getElementById "app")))
 
 (defn render []
-  (.render root ($ c/app)))
+  (.render root
+           ($ components.layout/providers
+              ($ components.layout/layout))))
 
 (defn ^:export init []
   (render))
