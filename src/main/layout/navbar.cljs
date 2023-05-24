@@ -1,38 +1,43 @@
-(ns main.components.layout
-  (:require ["@chakra-ui/react"  :as chakra]
-            ["@chakra-ui/icons"  :as icons]
+(ns main.layout.navbar
+  (:require ["@chakra-ui/icons" :as icons]
+            ["@chakra-ui/react" :as chakra]
+            ["react-router-dom" :as rrd]
+            [clojure.string :as s]
             [helix.core :refer [$]]
             [main.lib :refer [defnc]]))
 
-(defnc providers [{:keys [children]}]
-  ($ chakra/ChakraProvider children))
-
 (def nav-items
-  [{:label "Inspiration"
-    :children [{:label "Explore Design Work"
-                :sub-label "Trending Design to inspire you"
+  [{:label "Exercises"
+    :children [{:label "Two pointer technique"
+                :sub-label ""
+                :href "/about"}
+               {:label "Fast and Slow pointers pattern"
+                :sub-label "Up-and-coming Designers"
+                :href "/about"}]}
+
+   {:label "Windows & Intervals"
+    :children [{:label "Sliding windows"
+                :sub-label "Up-and-coming Designers"
                 :href "#"}
-               {:label "New & Noteworthy"
+               {:label "Merge intervals"
                 :sub-label "Up-and-coming Designers"
                 :href "#"}]}
 
-   {:label "Find Work"
-    :children [{:label "Job Board"
-                :sub-label "Find your dream design job"
-                :href "#"}
-               {:label "Freelance Projects"
-                :sub-label "An exclusive list for contract work"
+   {:label "Others"
+    :children [{:label "0/1 Knapsack Pattern"
+                :sub-label "Up-and-coming Designers"
                 :href "#"}]}
 
-   {:label "Learn Design"
-    :href "#"}
+   {:label "Home"
+    :href "/"}
 
-   {:label "Hire Designers"
-    :href "#"}])
+   {:label "About"
+    :href "/about"}])
 
 (defnc desktop-sub-nav [{:keys [label href sub-label]}]
   ($ chakra/Link
-     {:href href
+     {:as rrd/Link
+      :to href
       :role "group"
       :display "block"
       :p 2
@@ -59,7 +64,6 @@
                            :h 5
                            :as icons/ChevronRightIcon})))))
 
-
 (defnc desktop-nav []
   (let [link-color (chakra/useColorModeValue "gray.600" "gray.200")
         link-hover-color (chakra/useColorModeValue "gray.800" "white")
@@ -72,7 +76,10 @@
                ($ chakra/PopoverTrigger
                   ($ chakra/Link
                      {:p 2
-                      :href (or (:href nav) "#")
+                      :data-testid (str "menu-" (s/lower-case (:label nav)))
+                      :as rrd/Link
+                      :role "link"
+                      :to (or (:href nav) "#")
                       :fontSize "sm"
                       :fontWeight 500
                       :color link-color
@@ -93,10 +100,59 @@
                          ($ desktop-sub-nav
                             {:key (:label child) & child})))))))))))
 
-(defnc layout [{:keys []}]
-  (let [{:keys [isOpen onToggle]} (js->clj
-                                   (chakra/useDisclosure)
-                                   :keywordize-keys true)]
+(defnc mobile-nav-item [{:keys [label children href]}]
+  (let [{:keys [isOpen onToggle]}
+        (js->clj (chakra/useDisclosure) :keywordize-keys true)]
+    ($ chakra/Stack
+       {:spacing 4
+        :onClick (and (not-empty children) onToggle)}
+       ($ chakra/Flex
+          {:py 2
+           :as chakra/Link
+           :href (and href "#")
+           :justify "space-between"
+           :align "center"
+           :_hover #js {:textDecoration "none"}}
+          ($ chakra/Text
+             {:fontWeight 600
+              :color (chakra/useColorModeValue "gray.600" "gray.200")}
+             label)
+          (when (not-empty children)
+            ($ chakra/Icon
+               {:as icons/ChevronDownIcon
+                :transition "all .25s ease-in-out"
+                :transform (if isOpen "rotate(180deg)" "")
+                :w 6
+                :h 6})))
+       ($ chakra/Collapse
+          {:in isOpen
+           :animateOpacity true
+           :style #js {:marginTop "0"}}
+          ($ chakra/Stack
+             {:mt 2
+              :pl 4
+              :borderLeft 1
+              :borderStyle "solid"
+              :color (chakra/useColorModeValue "gray.600" "gray.200")
+              :align "start"}
+             (for [child children]
+               ($ chakra/Link
+                  {:key (:label child)
+                   :py 2
+                   :href (:href child)}
+                  (:label child))))))))
+
+(defnc mobile-nav []
+  ($ chakra/Stack
+     {:bg (chakra/useColorModeValue "white" "gray.800")
+      :p 4
+      :display #js {:md "none"}}
+     (for [nav nav-items]
+       ($ mobile-nav-item {:key (:label nav) & nav}))))
+
+(defnc navbar [{:keys []}]
+  (let [{:keys [isOpen onToggle]}
+        (js->clj (chakra/useDisclosure) :keywordize-keys true)]
     ($ chakra/Box
        ($ chakra/Flex
           {:minH "60px"
@@ -120,7 +176,7 @@
                  :variant "ghost"
                  :aria-label "Toggle Navigation"}))
           ($ chakra/Flex {:flex #js {:base 1}
-                          :justify #js {:base "center" :md "start"}}
+                          :justify #js {:base "end" :md "start"}}
              ($ chakra/Text
                 {:textAlign
                  (chakra/useBreakpointValue
@@ -132,4 +188,5 @@
              ($ chakra/Flex
                 {:display #js {:base "none" :md "flex"}
                  :ml 10}
-                ($ desktop-nav)))))))
+                ($ desktop-nav))))
+       ($ chakra/Collapse {:in isOpen :animateOpacity true} ($ mobile-nav)))))

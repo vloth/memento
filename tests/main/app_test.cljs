@@ -2,7 +2,8 @@
   (:require ["@testing-library/react" :as tlr]
             [clojure.test :refer [deftest is use-fixtures]]
             [helix.core :refer [$]]
-            [main.component :as c]))
+            [main.layout.base :as layout.base]
+            [main.layout.navbar :as layout.navbar]))
 
 (defn testing-container []
   (as-> (js/document.createElement "div") div
@@ -14,7 +15,16 @@
 
 (use-fixtures :each setup-root)
 
-(deftest a-component-test
-  (let [container (tlr/render ($ c/app) #js {:container (testing-container)})
-        btn       (.getByRole container "button")]
-      (is (= "OK" (.-textContent btn)))))
+(defn render [children]
+  (tlr/render ($ layout.base/providers children)
+              #js {:container (testing-container)}))
+
+(def not-nil? (comp not nil?))
+
+(defn get-by-testid [^js container test-id]
+  (.getByTestId container test-id))
+
+(deftest has-home-menu
+  (-> (render ($ layout.navbar/navbar))
+      (get-by-testid  "menu-home")
+      ((fn [link] (is (not-nil? link))))))
