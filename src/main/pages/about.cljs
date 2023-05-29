@@ -1,6 +1,6 @@
 (ns main.pages.about
   (:require [helix.dom :as d]
-            [main.lib :refer [defnc]]))
+            [main.lib.helix :refer [defnc]]))
 
 (defnc about-page []
   (d/p "about!"))

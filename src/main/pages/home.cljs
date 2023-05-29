@@ -1,14 +1,51 @@
 (ns main.pages.home
-  (:require [helix.core :refer [$]]
+  (:require ["react" :as r]
+            ["react-router-dom" :as rrd]
+            [helix.core :refer [$]]
             [helix.dom :as d]
-            [main.lib :refer [defnc]]
-            [main.lib.chakra :as chakra]))
+            [main.lib.chakra :as c]
+            [main.lib.helix :refer [defnc]]))
+
+(defn add-querystring [path qs-key qs-value]
+  (let [search (.. js/window -location -search)
+        params (new js/URLSearchParams search)]
+    (.set params qs-key qs-value)
+    (js/decodeURIComponent (str path "?" params))))
+
+(defn submit-search [navigate search]
+  (fn [event]
+    (.preventDefault event)
+    (-> (add-querystring "/code" "search" search)
+        (navigate))))
 
 (defnc home-page []
-  ($ chakra/flex {:p 2 :gap 6}
-     ($ chakra/box {:maxWidth "20%" :bg "green"})
-     ($ chakra/box
-        (d/p "There are many benefits to a joint design and development system. Not only
-  does it bring benefits to the design team, but it also brings benefits to
-  engineering teams. It makes sure that our experiences have a consistent look
-  and feel, not just in our design specs, but in production"))))
+  (let [[search set-search] (r/useState "")
+        navigate (rrd/useNavigate)]
+    ($ c/container {:maxW "3xl"}
+       ($ c/stack
+          {:as c/box
+           :textAlign "center"
+           :spacing #js {:base 8 :md 14}
+           :py #js {:base 20 :md 36}}
+          ($ c/heading
+             {:fontWeight 600
+              :fontSize #js {:base "2xl" :sm "4xl" :md "6xl"}
+              :lineHeight "110%"}
+             "Learn leet code from"
+             (d/br)
+             ($ c/text
+                {:as "span" :color "pink.400" :fontFamily "Sofia"}
+                "memento") ".")
+          ($ c/text {:color "gray.500"}
+             "Memento has hundred of solved leet code
+              exercises for you to peek.")
+          (d/form {:onSubmit (submit-search navigate search)
+                   :data-testid "search-form"}
+                  ($ c/input {:variant "flushed"
+                              :type "text"
+                              :data-testid "search"
+                              :onChange #(set-search (.. % -target -value))
+                              :value search
+                              :placeholder "Start by searching..."
+                              :borderColor "gray.400"
+                              :_placeholder #js {:color "gray.400"}}))))))

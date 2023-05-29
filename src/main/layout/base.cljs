@@ -1,13 +1,12 @@
 (ns main.layout.base
-  (:require
-   ["react-router-dom" :as rrd]
-   ["@chakra-ui/react" :as chakra-ui]
-   [helix.core :refer [$ <>]]
-   [main.layout.navbar :as layout.navbar]
-   [main.lib :refer [defnc]]))
+  (:require ["react-router-dom" :as rrd]
+            [helix.core :refer [$ <>]]
+            [main.layout.navbar :as layout.navbar]
+            [main.lib.chakra :as c]
+            [main.lib.helix :refer [defnc]]))
 
 (defnc providers [{:keys [children]}]
-  ($ chakra-ui/ChakraProvider
+  ($ c/chakra-provider
      ($ rrd/BrowserRouter children)))
 
 (defnc layout []

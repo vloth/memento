@@ -4,10 +4,9 @@
   "private": true,
   "scripts": {
     "start": "concurrently -c bgBlue.bold,bgBlueBright.bold npm:watch:js-*",
-    "test": "shadow-cljs compile node-tests && node out/node-tests.js",
+    "test": "shadow-cljs compile node-tests && node --require global-jsdom/register out/node-tests.js",
     "watch:js-cljs": "shadow-cljs watch app tests",
     "watch:js-bundle": "webpack --entry ./out/libs.mjs --output-path public/js/libs --mode development --watch",
-    "watch:test": "shadow-cljs watch node-tests --config-merge \"{:autorun true}\"",
     "release:js-cljs": "shadow-cljs release app",
     "release:js-bundle": "webpack --entry ./out/libs.mjs --output-path public/js/libs --mode production"
   },
@@ -30,5 +29,8 @@
     "webpack": "^5.83.1",
     "webpack-bundle-analyzer": "^4.8.0",
     "webpack-cli": "^5.1.1"
+  },
+  "devDependencies": {
+    "@testing-library/user-event": "^14.4.3"
   }
 }

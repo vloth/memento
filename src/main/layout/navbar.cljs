@@ -1,57 +1,52 @@
 (ns main.layout.navbar
-  (:require ["@chakra-ui/icons" :as icons]
-            ["@chakra-ui/react" :as chakra]
-            ["react-router-dom" :as rrd]
-            [clojure.string :as s]
+  (:require ["react-router-dom" :as rrd]
             [helix.core :refer [$]]
-            [main.lib :refer [defnc]]))
+            [main.lib.chakra :as c]
+            [main.lib.helix :refer [defnc]]))
 
 (def nav-items
-  [{:label "Exercises"
-    :children [{:label "Two pointer technique"
-                :sub-label ""
-                :href "/about"}
-               {:label "Fast and Slow pointers pattern"
-                :sub-label "Up-and-coming Designers"
-                :href "/about"}]}
+  {:home {:label "Home"
+          :href "/"}
 
-   {:label "Windows & Intervals"
-    :children [{:label "Sliding windows"
-                :sub-label "Up-and-coming Designers"
-                :href "#"}
-               {:label "Merge intervals"
-                :sub-label "Up-and-coming Designers"
-                :href "#"}]}
+   :code {:label "Code"
+          :href "#"
+          :children
+          {:array
+           {:label "Array"
+            :href "/code/array"
+            :sub-label
+            "Arrays are a simple data structure 
+             for storing lots of similar items."}
+           :string
+           {:label "String"
+            :href "/code/string"
+            :sub-label
+            "In computer programming, a string is traditionally 
+             a sequence of characters, either as a literal 
+             constant or as some kind of variable"}}}
 
-   {:label "Others"
-    :children [{:label "0/1 Knapsack Pattern"
-                :sub-label "Up-and-coming Designers"
-                :href "#"}]}
+   :about {:label "About"
+           :href "/about"}})
 
-   {:label "Home"
-    :href "/"}
-
-   {:label "About"
-    :href "/about"}])
-
-(defnc desktop-sub-nav [{:keys [label href sub-label]}]
-  ($ chakra/Link
+(defnc desktop-sub-nav [{:keys [id label href sub-label]}]
+  ($ c/link
      {:as rrd/Link
+      :data-testid id
       :to href
       :role "group"
       :display "block"
       :p 2
       :rounded "md"
-      :_hover #js {:bg (chakra/useColorModeValue "pink.50" "gray.900")}}
-     ($ chakra/Stack {:direction "row" :align "center"}
-        ($ chakra/Box
-           ($ chakra/Text
+      :_hover #js {:bg (c/use-color-mode-value "pink.50" "gray.900")}}
+     ($ c/stack {:direction "row" :align "center"}
+        ($ c/box
+           ($ c/text
               {:transition "all .3s ease"
                :_groupHover #js {:color "pink.400"}
                :fontWeight 500} label)
-           ($ chakra/Text
+           ($ c/text
               {:fontSize "sm"} sub-label))
-        ($ chakra/Flex
+        ($ c/flex
            {:transition "all .3s ease"
             :transform "translateX(-10px)"
             :opacity 0
@@ -59,24 +54,23 @@
             :justify "flex-end"
             :align "center"
             :flex 1}
-           ($ chakra/Icon {:color "pink.400"
-                           :w 5
-                           :h 5
-                           :as icons/ChevronRightIcon})))))
+           ($ c/icon {:color "pink.400"
+                      :w 5
+                      :h 5
+                      :as (:chevron-right c/icons)})))))
 
 (defnc desktop-nav []
-  (let [link-color (chakra/useColorModeValue "gray.600" "gray.200")
-        link-hover-color (chakra/useColorModeValue "gray.800" "white")
-        popover-content-bg-color (chakra/useColorModeValue "white" "gray.800")]
-    ($ chakra/Stack {:direction "row"
-                     :spacing 4}
-       (for [nav nav-items]
-         ($ chakra/Box {:key (:label nav)}
-            ($ chakra/Popover {:trigger "hover" :placement "bottom-start"}
-               ($ chakra/PopoverTrigger
-                  ($ chakra/Link
+  (let [link-color (c/use-color-mode-value "gray.600" "gray.200")
+        link-hover-color (c/use-color-mode-value "gray.800" "white")
+        popover-content-bg-color (c/use-color-mode-value "white" "gray.800")]
+    ($ c/stack {:direction "row" :spacing 4}
+       (for [[id nav] nav-items]
+         ($ c/box {:key (:label nav)}
+            ($ c/popover {:trigger "hover" :placement "bottom-start"}
+               ($ c/popover-trigger
+                  ($ c/link
                      {:p 2
-                      :data-testid (str "menu-" (s/lower-case (:label nav)))
+                      :data-testid id
                       :as rrd/Link
                       :role "link"
                       :to (or (:href nav) "#")
@@ -88,105 +82,102 @@
                            :color link-hover-color}}
                      (:label nav)))
                (when (not-empty (:children nav))
-                 ($ chakra/PopoverContent
+                 ($ c/popover-content
                     {:bg popover-content-bg-color
                      :border 0
                      :boxShadow "xl"
                      :p 4
                      :rounded "xl"
                      :minW "sm"}
-                    ($ chakra/Stack
-                       (for [child (:children nav)]
+                    ($ c/stack
+                       (for [[id child] (:children nav)]
                          ($ desktop-sub-nav
-                            {:key (:label child) & child})))))))))))
+                            {:key id & child})))))))))))
 
 (defnc mobile-nav-item [{:keys [label children href]}]
-  (let [{:keys [isOpen onToggle]}
-        (js->clj (chakra/useDisclosure) :keywordize-keys true)]
-    ($ chakra/Stack
+  (let [{:keys [isOpen onToggle]} (c/use-disclojure)]
+    ($ c/stack
        {:spacing 4
         :onClick (and (not-empty children) onToggle)}
-       ($ chakra/Flex
+       ($ c/flex
           {:py 2
-           :as chakra/Link
+           :as c/link
            :href (and href "#")
            :justify "space-between"
            :align "center"
            :_hover #js {:textDecoration "none"}}
-          ($ chakra/Text
+          ($ c/text
              {:fontWeight 600
-              :color (chakra/useColorModeValue "gray.600" "gray.200")}
+              :color (c/use-color-mode-value "gray.600" "gray.200")}
              label)
           (when (not-empty children)
-            ($ chakra/Icon
-               {:as icons/ChevronDownIcon
+            ($ c/icon
+               {:as (:chevron-down c/icons)
                 :transition "all .25s ease-in-out"
                 :transform (if isOpen "rotate(180deg)" "")
                 :w 6
                 :h 6})))
-       ($ chakra/Collapse
+       ($ c/collapse
           {:in isOpen
            :animateOpacity true
            :style #js {:marginTop "0"}}
-          ($ chakra/Stack
+          ($ c/stack
              {:mt 2
               :pl 4
               :borderLeft 1
               :borderStyle "solid"
-              :color (chakra/useColorModeValue "gray.600" "gray.200")
+              :color (c/use-color-mode-value "gray.600" "gray.200")
               :align "start"}
-             (for [child children]
-               ($ chakra/Link
-                  {:key (:label child)
+             (for [[id child] children]
+               ($ c/link
+                  {:key id
                    :py 2
                    :href (:href child)}
                   (:label child))))))))
 
 (defnc mobile-nav []
-  ($ chakra/Stack
-     {:bg (chakra/useColorModeValue "white" "gray.800")
+  ($ c/stack
+     {:bg (c/use-color-mode-value "white" "gray.800")
       :p 4
       :display #js {:md "none"}}
-     (for [nav nav-items]
-       ($ mobile-nav-item {:key (:label nav) & nav}))))
+     (for [[id nav] nav-items]
+       ($ mobile-nav-item {:key id & nav}))))
 
 (defnc navbar [{:keys []}]
-  (let [{:keys [isOpen onToggle]}
-        (js->clj (chakra/useDisclosure) :keywordize-keys true)]
-    ($ chakra/Box
-       ($ chakra/Flex
+  (let [{:keys [isOpen onToggle]} (c/use-disclojure)]
+    ($ c/box
+       ($ c/flex
           {:minH "60px"
-           :bg (chakra/useColorModeValue "white" "gray.800")
-           :color (chakra/useColorModeValue "gray.600" "white")
-           :borderColor (chakra/useColorModeValue "gray.200" "gray.900")
+           :bg (c/use-color-mode-value "white" "gray.800")
+           :color (c/use-color-mode-value "gray.600" "white")
+           :borderColor (c/use-color-mode-value "gray.200" "gray.900")
            :py #js {:base 2}
            :px #js {:base 4}
            :borderBottom 1
            :borderStyle "solid"
            :align "center"}
-          ($ chakra/Flex
+          ($ c/flex
              {:flex #js {:base 1 :md "auto"}
               :ml #js {:base -2}
               :display #js {:base "flex" :md "none"}}
-             ($ chakra/IconButton
+             ($ c/icon-button
                 {:onClick onToggle
                  :icon (if isOpen
-                         ($ icons/CloseIcon {:w 3 :h 3})
-                         ($ icons/HamburgerIcon {:w 3 :h 3}))
+                         ($ (:close c/icons) {:w 3 :h 3})
+                         ($ (:hamburguer c/icons) {:w 3 :h 3}))
                  :variant "ghost"
                  :aria-label "Toggle Navigation"}))
-          ($ chakra/Flex {:flex #js {:base 1}
-                          :justify #js {:base "end" :md "start"}}
-             ($ chakra/Text
+          ($ c/flex {:flex #js {:base 1}
+                     :justify #js {:base "end" :md "start"}}
+             ($ c/text
                 {:textAlign
-                 (chakra/useBreakpointValue
+                 (c/use-breakpoint-value
                   #js {:base "center" :md "left"})
-                 :fontFamily "heading"
-                 :color
-                 (chakra/useColorModeValue "gray.800" "white")}
-                "Memento")
-             ($ chakra/Flex
+                 :fontFamily "Sofia"
+                 :color "pink.400"}
+                "memento")
+             ($ c/flex
                 {:display #js {:base "none" :md "flex"}
                  :ml 10}
                 ($ desktop-nav))))
-       ($ chakra/Collapse {:in isOpen :animateOpacity true} ($ mobile-nav)))))
+       ($ c/collapse {:in isOpen :animateOpacity true} ($ mobile-nav)))))
