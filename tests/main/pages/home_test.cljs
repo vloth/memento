@@ -12,6 +12,6 @@
     (testing "Search"
       (t/type-in (t/get-by-testid page "search") "foo bar")
       (t/submit (t/get-by-testid page "search-form"))
-      (is (= "/code?search=foo+bar" (t/get-current-url)))
+      (is (= "/search/foo%20bar" (t/get-current-url)))
       (t/set-current-url! "/"))))
 

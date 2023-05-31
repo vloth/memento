@@ -6,17 +6,10 @@
             [main.lib.chakra :as c]
             [main.lib.helix :refer [defnc]]))
 
-(defn add-querystring [path qs-key qs-value]
-  (let [search (.. js/window -location -search)
-        params (new js/URLSearchParams search)]
-    (.set params qs-key qs-value)
-    (js/decodeURIComponent (str path "?" params))))
-
 (defn submit-search [navigate search]
   (fn [event]
     (.preventDefault event)
-    (-> (add-querystring "/code" "search" search)
-        (navigate))))
+    (navigate (str "/search/" (js/decodeURIComponent search)))))
 
 (defnc home-page []
   (let [[search set-search] (r/useState "")

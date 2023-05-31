@@ -65,14 +65,12 @@
         popover-content-bg-color (c/use-color-mode-value "white" "gray.800")]
     ($ c/stack {:direction "row" :spacing 4}
        (for [[id nav] nav-items]
-         ($ c/box {:key (:label nav)}
+         ($ c/box {:key id}
             ($ c/popover {:trigger "hover" :placement "bottom-start"}
                ($ c/popover-trigger
                   ($ c/link
                      {:p 2
-                      :data-testid id
                       :as rrd/Link
-                      :role "link"
                       :to (or (:href nav) "#")
                       :fontSize "sm"
                       :fontWeight 500
@@ -95,10 +93,10 @@
                             {:key id & child})))))))))))
 
 (defnc mobile-nav-item [{:keys [label children href]}]
-  (let [{:keys [isOpen onToggle]} (c/use-disclojure)]
+  (let [{:keys [is-open on-toggle]} (c/use-disclojure)]
     ($ c/stack
        {:spacing 4
-        :onClick (and (not-empty children) onToggle)}
+        :onClick (and (not-empty children) on-toggle)}
        ($ c/flex
           {:py 2
            :as c/link
@@ -114,11 +112,11 @@
             ($ c/icon
                {:as (:chevron-down c/icons)
                 :transition "all .25s ease-in-out"
-                :transform (if isOpen "rotate(180deg)" "")
+                :transform (if is-open "rotate(180deg)" "")
                 :w 6
                 :h 6})))
        ($ c/collapse
-          {:in isOpen
+          {:in is-open
            :animateOpacity true
            :style #js {:marginTop "0"}}
           ($ c/stack
@@ -143,8 +141,8 @@
      (for [[id nav] nav-items]
        ($ mobile-nav-item {:key id & nav}))))
 
-(defnc navbar [{:keys []}]
-  (let [{:keys [isOpen onToggle]} (c/use-disclojure)]
+(defnc navbar []
+  (let [{:keys [is-open on-toggle]} (c/use-disclojure)]
     ($ c/box
        ($ c/flex
           {:minH "60px"
@@ -161,8 +159,8 @@
               :ml #js {:base -2}
               :display #js {:base "flex" :md "none"}}
              ($ c/icon-button
-                {:onClick onToggle
-                 :icon (if isOpen
+                {:onClick on-toggle
+                 :icon (if is-open
                          ($ (:close c/icons) {:w 3 :h 3})
                          ($ (:hamburguer c/icons) {:w 3 :h 3}))
                  :variant "ghost"
@@ -180,4 +178,4 @@
                 {:display #js {:base "none" :md "flex"}
                  :ml 10}
                 ($ desktop-nav))))
-       ($ c/collapse {:in isOpen :animateOpacity true} ($ mobile-nav)))))
+       ($ c/collapse {:in is-open :animateOpacity true} ($ mobile-nav)))))

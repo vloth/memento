@@ -18,6 +18,9 @@
 (defn get-by-testid [^js container test-id]
   (.getByTestId container test-id))
 
+(defn get-by-role [^js container role options]
+  (.getByRole container role options))
+
 ; interaction
 (defn click [^js element]
   (.click tlr/fireEvent element))
